@@ -303,8 +303,8 @@ function ProjectCard({
   onEdit: (project: Project) => void;
   onDelete: (project: Project) => void;
 }) {
-  const previewUrl = normalizeExternalUrl(project.liveUrl ?? project.sourceUrl);
-  const liveUrl = project.liveUrl ? normalizeExternalUrl(project.liveUrl) : null;
+  const resolvedLiveUrl = project.liveUrl?.trim() ? normalizeExternalUrl(project.liveUrl) : null;
+  const previewUrl = resolvedLiveUrl ?? normalizeExternalUrl(project.sourceUrl);
   const sourceUrl = normalizeExternalUrl(project.sourceUrl);
   const [showAllTech, setShowAllTech] = useState(false);
   const visibleTech = showAllTech ? project.techStack : project.techStack.slice(0, 4);
@@ -385,9 +385,9 @@ function ProjectCard({
         {/* Action buttons */}
         <div className="flex flex-wrap items-center gap-3 pt-2">
           <div className="flex items-center gap-3">
-            {project.liveUrl && (
+            {resolvedLiveUrl && (
               <a
-                href={liveUrl ?? sourceUrl}
+                href={resolvedLiveUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-primary text-xs px-4 py-2"
