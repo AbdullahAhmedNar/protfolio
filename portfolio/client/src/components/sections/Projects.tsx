@@ -25,6 +25,22 @@ const EMPTY_FORM: ProjectFormState = {
   category: "",
 };
 
+function normalizeExternalUrl(url: string) {
+  const trimmedUrl = url.trim();
+  if (!trimmedUrl) {
+    return "";
+  }
+
+  if (
+    /^(https?:\/\/|mailto:|tel:|\/\/)/i.test(trimmedUrl) ||
+    /^[a-z][a-z0-9+.-]*:/i.test(trimmedUrl)
+  ) {
+    return trimmedUrl;
+  }
+
+  return `https://${trimmedUrl}`;
+}
+
 function toFormState(project?: Project): ProjectFormState {
   if (!project) {
     return EMPTY_FORM;
@@ -49,8 +65,8 @@ function toProjectDraft(formState: ProjectFormState): ProjectDraft {
       .split(",")
       .map((tech) => tech.trim())
       .filter(Boolean),
-    liveUrl: formState.liveUrl.trim() || null,
-    sourceUrl: formState.sourceUrl.trim(),
+    liveUrl: formState.liveUrl.trim() ? normalizeExternalUrl(formState.liveUrl) : null,
+    sourceUrl: normalizeExternalUrl(formState.sourceUrl),
     imageUrl: formState.imageUrl.trim(),
     category: formState.category.trim(),
   };
@@ -287,7 +303,9 @@ function ProjectCard({
   onEdit: (project: Project) => void;
   onDelete: (project: Project) => void;
 }) {
-  const previewUrl = project.liveUrl ?? project.sourceUrl;
+  const previewUrl = normalizeExternalUrl(project.liveUrl ?? project.sourceUrl);
+  const liveUrl = project.liveUrl ? normalizeExternalUrl(project.liveUrl) : null;
+  const sourceUrl = normalizeExternalUrl(project.sourceUrl);
   const [showAllTech, setShowAllTech] = useState(false);
   const visibleTech = showAllTech ? project.techStack : project.techStack.slice(0, 4);
 
@@ -369,7 +387,7 @@ function ProjectCard({
           <div className="flex items-center gap-3">
             {project.liveUrl && (
               <a
-                href={project.liveUrl}
+                href={liveUrl ?? sourceUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-primary text-xs px-4 py-2"
@@ -380,7 +398,7 @@ function ProjectCard({
               </a>
             )}
             <a
-              href={project.sourceUrl}
+              href={sourceUrl}
               target="_blank"
               rel="noopener noreferrer"
               className={`inline-flex items-center gap-1.5 text-xs font-medium transition-colors duration-200 ${
