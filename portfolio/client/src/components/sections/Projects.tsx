@@ -41,6 +41,28 @@ function normalizeExternalUrl(url: string) {
   return `https://${trimmedUrl}`;
 }
 
+function isRepositoryUrl(url: string) {
+  return /github\.com|gitlab\.com|bitbucket\.org|\.git(?:$|[?#/])/i.test(url);
+}
+
+function resolveProjectLinks(project: Project) {
+  const normalizedLiveUrl = project.liveUrl?.trim() ? normalizeExternalUrl(project.liveUrl) : null;
+  const normalizedSourceUrl = normalizeExternalUrl(project.sourceUrl);
+
+  // If data was entered in reverse, auto-correct button targets.
+  if (normalizedLiveUrl && isRepositoryUrl(normalizedLiveUrl) && !isRepositoryUrl(normalizedSourceUrl)) {
+    return {
+      liveUrl: normalizedSourceUrl,
+      sourceUrl: normalizedLiveUrl,
+    };
+  }
+
+  return {
+    liveUrl: normalizedLiveUrl,
+    sourceUrl: normalizedSourceUrl,
+  };
+}
+
 function toFormState(project?: Project): ProjectFormState {
   if (!project) {
     return EMPTY_FORM;
@@ -303,9 +325,8 @@ function ProjectCard({
   onEdit: (project: Project) => void;
   onDelete: (project: Project) => void;
 }) {
-  const resolvedLiveUrl = project.liveUrl?.trim() ? normalizeExternalUrl(project.liveUrl) : null;
-  const previewUrl = resolvedLiveUrl ?? normalizeExternalUrl(project.sourceUrl);
-  const sourceUrl = normalizeExternalUrl(project.sourceUrl);
+  const { liveUrl: resolvedLiveUrl, sourceUrl } = resolveProjectLinks(project);
+  const previewUrl = resolvedLiveUrl ?? sourceUrl;
   const [showAllTech, setShowAllTech] = useState(false);
   const visibleTech = showAllTech ? project.techStack : project.techStack.slice(0, 4);
 
