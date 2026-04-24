@@ -289,10 +289,13 @@
 
   html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
+    overscroll-behavior-x: none;
   }
 
   body {
     @apply bg-bg-main text-text-main font-sans antialiased;
+    overflow-x: hidden;
     background-color: #3E3232;
     background-image:
       radial-gradient(ellipse at 20% 20%, rgba(168, 124, 124, 0.12) 0%, transparent 50%),
@@ -675,13 +678,14 @@
 
   /* ── Bottom nav bar (mobile) ── */
   .bottom-nav {
-    position: fixed;
+    position: fixed !important;
     bottom: 0;
     left: 0;
     right: 0;
     width: 100%;
     z-index: 50;
     transform: none !important;
+    overflow-x: hidden;
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
@@ -701,10 +705,12 @@
     display: flex;
     align-items: center;
     justify-content: space-around;
+    flex-wrap: nowrap;
     width: 100%;
     max-width: 540px;
     margin: 0 auto;
     padding: 0.38rem 0.45rem 0.32rem;
+    overflow-x: hidden;
   }
 
   .bottom-nav__item {

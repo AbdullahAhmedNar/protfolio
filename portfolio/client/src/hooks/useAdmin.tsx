@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useMemo, useRef, useState, type
 
 const ADMIN_SESSION_KEY = "portfolio-admin-session-v1";
 const SECRET_CLICK_THRESHOLD = 7;
-const ADMIN_HASH_PARTS = ["890d9W1dDTr0L+LE", "nK9uuv8AbtVMqKYi", "o+944z2pWKY="];
+const ADMIN_HASH_PARTS = ["tRJMlaHI9F7Vhsix", "yA8tZTwMtDaL5g9r", "VVU7YfrT65k="];
 const ADMIN_SALT = "portfolio-admin-salt-v1";
 
 interface AdminContextValue {
