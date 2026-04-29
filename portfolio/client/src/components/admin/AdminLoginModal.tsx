@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ChangeEvent, type FormEvent } from "react";
 import { ShieldCheck, X } from "lucide-react";
 import { useTheme } from "../../hooks/useTheme";
 import { useAdmin } from "../../hooks/useAdmin";
@@ -22,7 +22,7 @@ export default function AdminLoginModal() {
     closeLoginModal();
   };
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setSubmitting(true);
     setError(null);
@@ -72,7 +72,7 @@ export default function AdminLoginModal() {
             <label className="mb-1 block text-sm font-medium">Username</label>
             <input
               value={username}
-              onChange={(event) => setUsername(event.target.value)}
+              onChange={(event: ChangeEvent<HTMLInputElement>) => setUsername(event.target.value)}
               className={`w-full rounded-xl border px-3 py-2.5 text-sm outline-none transition-colors ${
                 isDark
                   ? "border-white/10 bg-bg-main text-text-main placeholder:text-text-muted focus:border-mint/60"
@@ -88,7 +88,7 @@ export default function AdminLoginModal() {
             <input
               type="password"
               value={password}
-              onChange={(event) => setPassword(event.target.value)}
+              onChange={(event: ChangeEvent<HTMLInputElement>) => setPassword(event.target.value)}
               className={`w-full rounded-xl border px-3 py-2.5 text-sm outline-none transition-colors ${
                 isDark
                   ? "border-white/10 bg-bg-main text-text-main placeholder:text-text-muted focus:border-mint/60"

@@ -24,6 +24,7 @@ const EMPTY_FORM: ProjectFormState = {
   imageUrl: "",
   category: "",
 };
+const MAX_IMAGE_SIZE_BYTES = 2 * 1024 * 1024;
 
 function normalizeExternalUrl(url: string) {
   const trimmedUrl = url.trim();
@@ -141,6 +142,11 @@ function ProjectEditorModal({
 
     if (!pickedFile.type.startsWith("image/")) {
       setImageError("Please select a valid image file.");
+      return;
+    }
+
+    if (pickedFile.size > MAX_IMAGE_SIZE_BYTES) {
+      setImageError("Image is too large. Please choose an image up to 2 MB.");
       return;
     }
 

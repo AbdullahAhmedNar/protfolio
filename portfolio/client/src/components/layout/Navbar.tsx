@@ -9,6 +9,7 @@ import {
   Route,
   Newspaper,
   Mail,
+  LogOut,
 } from "lucide-react";
 import { useTheme } from "../../hooks/useTheme";
 import { useAdmin } from "../../hooks/useAdmin";
@@ -100,8 +101,8 @@ export default function Navbar() {
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-visible relative">
-          <div className="flex items-center justify-between h-16 lg:h-20 overflow-visible">
-            {/* Logo */}
+          <div className="flex items-center h-16 lg:h-20 overflow-visible">
+            {/* Logo — left */}
             <Link
               to="/"
               onClick={(event) => {
@@ -116,7 +117,7 @@ export default function Navbar() {
                   document.querySelector("#hero")?.scrollIntoView({ behavior: "smooth" });
                 }
               }}
-              className="flex items-center group"
+              className="flex shrink-0 items-center group"
               aria-label="Abdullah Ahmed - Home"
             >
               <span
@@ -129,49 +130,68 @@ export default function Navbar() {
               </span>
             </Link>
 
+            {/* Admin logout — mobile visible in header row */}
             {isAdmin && (
               <button
                 type="button"
                 onClick={logout}
-                className={`hidden rounded-full border px-3 py-1 text-xs font-semibold sm:inline-flex ${
-                  isDark
-                    ? "border-mint/40 bg-mint/10 text-mint hover:bg-mint/20"
-                    : "border-mint/40 bg-mint/5 text-mint hover:bg-mint/15"
-                }`}
+                className="ml-3 inline-flex items-center gap-1 rounded-full bg-mint px-2.5 py-1 text-[11px] font-semibold text-white shadow-md lg:hidden"
+                aria-label="Admin logout"
               >
-                Admin Logout
+                <LogOut className="h-3.5 w-3.5" />
+                Logout
               </button>
             )}
 
-            {/* Desktop Nav */}
-            <nav className="hidden lg:flex items-center gap-2" aria-label="Main navigation">
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = item.href === activeSection;
+            {/* Right side — pushes everything to the far right */}
+            <div className="ml-auto flex items-center gap-2">
+              {/* Admin logout — desktop only (mobile in bottom nav) */}
+              {isAdmin && (
+                <button
+                  type="button"
+                  onClick={logout}
+                  className={`hidden lg:inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-semibold ${
+                    isDark
+                      ? "border-mint/40 bg-mint/10 text-mint hover:bg-mint/20"
+                      : "border-mint/40 bg-mint/5 text-mint hover:bg-mint/15"
+                  }`}
+                  aria-label="Admin logout"
+                >
+                  <LogOut className="h-3.5 w-3.5" />
+                  <span className="hidden xs:inline">Logout</span>
+                </button>
+              )}
 
-                return (
-                  <button
-                    key={item.label}
-                    onClick={() => handleNavClick(item)}
-                    className={`nav-link pb-0.5 ${
-                      isActive ? "active" : ""
-                    } ${isDark ? "" : "text-gray-600 hover:text-mint"}`}
-                  >
-                    <Icon className="nav-link__icon" />
-                    <span>{item.label}</span>
-                  </button>
-                );
-              })}
-            </nav>
+              {/* Desktop Nav (lg+) */}
+              <nav className="hidden lg:flex items-center gap-2" aria-label="Main navigation">
+                {navItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = item.href === activeSection;
 
-            {/* NAR branding */}
-            <span
-              className="hidden sm:inline-block text-2xl lg:text-3xl leading-none tracking-wide brand-text select-none"
-              style={{ fontFamily: "'MasterRumble', serif" }}
-              aria-hidden="true"
-            >
-              NAR
-            </span>
+                  return (
+                    <button
+                      key={item.label}
+                      onClick={() => handleNavClick(item)}
+                      className={`nav-link pb-0.5 ${
+                        isActive ? "active" : ""
+                      } ${isDark ? "" : "text-gray-600 hover:text-mint"}`}
+                    >
+                      <Icon className="nav-link__icon" />
+                      <span>{item.label}</span>
+                    </button>
+                  );
+                })}
+              </nav>
+
+              {/* NAR branding (sm+) */}
+              <span
+                className="hidden sm:inline-block text-2xl lg:text-3xl leading-none tracking-wide brand-text select-none"
+                style={{ fontFamily: "'MasterRumble', serif" }}
+                aria-hidden="true"
+              >
+                NAR
+              </span>
+            </div>
           </div>
 
           {/* Neumorphic clock — hangs below header (lg+ only) */}
@@ -206,6 +226,7 @@ export default function Navbar() {
               </button>
             );
           })}
+
         </div>
       </nav>
     </>
