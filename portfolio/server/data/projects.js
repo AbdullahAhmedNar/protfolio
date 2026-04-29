@@ -107,4 +107,16 @@ export const projects = [
     category: "Desktop Application",
     badge: "Client Project",
   },
+  {
+    id: "10",
+    title: "M.G Fashion Fabric Contact Page",
+    description:
+      "A complete contact page built for the M.G Fashion Fabric brand with a clean user experience and brand-aligned visual style.",
+    techStack: ["React", "Tailwind CSS", "HTML", "Font Libraries"],
+    liveUrl: "https://mgfashionfabric.vercel.app/",
+    sourceUrl: "https://github.com/AbdullahAhmedNar/Contact_Page-M.G",
+    imageUrl: "/image/contact.png",
+    category: "Frontend",
+    badge: "Real Project",
+  },
 ];
