@@ -38,12 +38,66 @@ export interface ContactPayload {
 
 export type ProjectPayload = Omit<Project, "id">;
 
+function normalizeProject(raw: unknown): Project | null {
+  if (!raw || typeof raw !== "object") {
+    return null;
+  }
+
+  const candidate = raw as Record<string, unknown>;
+  const id = String(candidate.id ?? "").trim();
+  const title = String(candidate.title ?? "").trim();
+  const description = String(candidate.description ?? "").trim();
+  const sourceUrl = String(candidate.sourceUrl ?? "").trim();
+  const imageUrl = String(candidate.imageUrl ?? "").trim();
+  const category = String(candidate.category ?? "").trim();
+  const liveUrlRaw = candidate.liveUrl;
+  const liveUrl =
+    liveUrlRaw == null || String(liveUrlRaw).trim() === "" ? null : String(liveUrlRaw).trim();
+  const techStack = Array.isArray(candidate.techStack)
+    ? candidate.techStack.map((tech) => String(tech).trim()).filter(Boolean)
+    : [];
+
+  if (!id || !title || !description || !sourceUrl || !imageUrl || !category || techStack.length === 0) {
+    return null;
+  }
+
+  const badge = candidate.badge ? String(candidate.badge).trim() : undefined;
+
+  return {
+    id,
+    title,
+    description,
+    techStack,
+    liveUrl,
+    sourceUrl,
+    imageUrl,
+    category,
+    ...(badge ? { badge } : {}),
+  };
+}
+
+function normalizeProjectsResponse(payload: unknown): Project[] {
+  const asRecord = payload && typeof payload === "object" ? (payload as Record<string, unknown>) : null;
+  const possibleArray =
+    Array.isArray(payload)
+      ? payload
+      : Array.isArray(asRecord?.data)
+      ? asRecord.data
+      : Array.isArray(asRecord?.projects)
+      ? asRecord.projects
+      : [];
+
+  return possibleArray
+    .map((item) => normalizeProject(item))
+    .filter((project): project is Project => Boolean(project));
+}
+
 export const fetchProjects = async (category?: string): Promise<Project[]> => {
   const params = category && category !== "All" ? { category } : {};
 
   try {
     const { data } = await api.get("/projects", { params });
-    return data.data;
+    return normalizeProjectsResponse(data?.data ?? data);
   } catch {
     if (!category || category === "All") {
       return [...localProjects];
@@ -56,7 +110,11 @@ export const fetchProjects = async (category?: string): Promise<Project[]> => {
 export const fetchProjectById = async (id: string): Promise<Project> => {
   try {
     const { data } = await api.get(`/projects/${id}`);
-    return data.data;
+    const normalized = normalizeProject(data?.data ?? data);
+    if (!normalized) {
+      throw new Error("Project payload is invalid");
+    }
+    return normalized;
   } catch {
     const project = localProjects.find((item) => item.id === id);
     if (!project) {
@@ -69,12 +127,20 @@ export const fetchProjectById = async (id: string): Promise<Project> => {
 
 export const createProject = async (payload: ProjectPayload): Promise<Project> => {
   const { data } = await api.post("/projects", payload);
-  return data.data;
+  const normalized = normalizeProject(data?.data ?? data);
+  if (!normalized) {
+    throw new Error("Invalid project response from server");
+  }
+  return normalized;
 };
 
 export const updateProjectById = async (id: string, payload: ProjectPayload): Promise<Project> => {
   const { data } = await api.put(`/projects/${id}`, payload);
-  return data.data;
+  const normalized = normalizeProject(data?.data ?? data);
+  if (!normalized) {
+    throw new Error("Invalid project response from server");
+  }
+  return normalized;
 };
 
 export const deleteProjectById = async (id: string): Promise<void> => {

@@ -23,7 +23,7 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
       try {
         const data = await fetchProjects();
         if (isMounted) {
-          setProjects(data);
+          setProjects(Array.isArray(data) ? data : []);
         }
       } catch {
         if (isMounted) {
