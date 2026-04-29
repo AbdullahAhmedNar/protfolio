@@ -2,7 +2,8 @@ import { createContext, useCallback, useContext, useMemo, useRef, useState, type
 
 const ADMIN_SESSION_KEY = "portfolio-admin-session-v1";
 const SECRET_CLICK_THRESHOLD = 7;
-const ADMIN_HASH_PARTS = ["tRJMlaHI9F7Vhsix", "yA8tZTwMtDaL5g9r", "VVU7YfrT65k="];
+const ADMIN_USERNAME = "nar@123";
+const ADMIN_HASH_PARTS = ["eZO/ZPI5/ts/RD+DZkgwsnAi/Jk8wl9Rh5zSaLdM++4="];
 const ADMIN_SALT = "portfolio-admin-salt-v1";
 
 interface AdminContextValue {
@@ -76,7 +77,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
       return false;
     }
 
-    if (username !== password) {
+    if (!secureEqual(username.trim(), ADMIN_USERNAME)) {
       return false;
     }
 
