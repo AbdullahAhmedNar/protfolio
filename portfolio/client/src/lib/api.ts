@@ -76,7 +76,7 @@ function normalizeProject(raw: unknown): Project | null {
   };
 }
 
-function normalizeProjectsResponse(payload: unknown): Project[] {
+function normalizeProjectsResponse(payload: unknown): Project[] | null {
   const asRecord = payload && typeof payload === "object" ? (payload as Record<string, unknown>) : null;
   const possibleArray =
     Array.isArray(payload)
@@ -85,7 +85,11 @@ function normalizeProjectsResponse(payload: unknown): Project[] {
       ? asRecord.data
       : Array.isArray(asRecord?.projects)
       ? asRecord.projects
-      : [];
+      : null;
+
+  if (!possibleArray) {
+    return null;
+  }
 
   return possibleArray
     .map((item) => normalizeProject(item))
@@ -97,7 +101,11 @@ export const fetchProjects = async (category?: string): Promise<Project[]> => {
 
   try {
     const { data } = await api.get("/projects", { params });
-    return normalizeProjectsResponse(data?.data ?? data);
+    const normalized = normalizeProjectsResponse(data?.data ?? data);
+    if (!normalized) {
+      throw new Error("Projects payload is not an array");
+    }
+    return normalized;
   } catch {
     if (!category || category === "All") {
       return [...localProjects];
