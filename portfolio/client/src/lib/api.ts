@@ -36,21 +36,49 @@ export interface ContactPayload {
   message: string;
 }
 
-export const fetchProjects = async (category?: string): Promise<Project[]> => {
-  if (!category || category === "All") {
-    return [...localProjects];
-  }
+export type ProjectPayload = Omit<Project, "id">;
 
-  return localProjects.filter((project) => project.category === category);
+export const fetchProjects = async (category?: string): Promise<Project[]> => {
+  const params = category && category !== "All" ? { category } : {};
+
+  try {
+    const { data } = await api.get("/projects", { params });
+    return data.data;
+  } catch {
+    if (!category || category === "All") {
+      return [...localProjects];
+    }
+
+    return localProjects.filter((project) => project.category === category);
+  }
 };
 
 export const fetchProjectById = async (id: string): Promise<Project> => {
-  const project = localProjects.find((item) => item.id === id);
-  if (!project) {
-    throw new Error("Project not found");
-  }
+  try {
+    const { data } = await api.get(`/projects/${id}`);
+    return data.data;
+  } catch {
+    const project = localProjects.find((item) => item.id === id);
+    if (!project) {
+      throw new Error("Project not found");
+    }
 
-  return project;
+    return project;
+  }
+};
+
+export const createProject = async (payload: ProjectPayload): Promise<Project> => {
+  const { data } = await api.post("/projects", payload);
+  return data.data;
+};
+
+export const updateProjectById = async (id: string, payload: ProjectPayload): Promise<Project> => {
+  const { data } = await api.put(`/projects/${id}`, payload);
+  return data.data;
+};
+
+export const deleteProjectById = async (id: string): Promise<void> => {
+  await api.delete(`/projects/${id}`);
 };
 
 export const fetchAchievements = async (category?: string): Promise<Achievement[]> => {

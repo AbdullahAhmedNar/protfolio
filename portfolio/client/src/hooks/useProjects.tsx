@@ -1,159 +1,58 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { projects as seedProjects } from "../data/projects";
-import type { Project } from "../lib/api";
-
-const PROJECTS_STORAGE_KEY = "portfolio-projects-v1";
-const PROJECTS_DB_NAME = "portfolio-projects-db-v1";
-const PROJECTS_STORE_NAME = "projects";
-const PROJECTS_RECORD_ID = "all-projects";
+import type { Project, ProjectPayload } from "../lib/api";
+import { createProject, deleteProjectById, fetchProjects, updateProjectById } from "../lib/api";
 
 type ProjectDraft = Omit<Project, "id">;
 
 interface ProjectsContextValue {
   projects: Project[];
-  addProject: (project: ProjectDraft) => void;
-  updateProject: (id: string, project: ProjectDraft) => void;
-  deleteProject: (id: string) => void;
+  addProject: (project: ProjectDraft) => Promise<void>;
+  updateProject: (id: string, project: ProjectDraft) => Promise<void>;
+  deleteProject: (id: string) => Promise<void>;
 }
 
 const ProjectsContext = createContext<ProjectsContextValue | null>(null);
 
-function readStoredProjects() {
-  const storedValue = window.localStorage.getItem(PROJECTS_STORAGE_KEY);
-  if (!storedValue) {
-    return seedProjects;
-  }
-
-  try {
-    const parsed = JSON.parse(storedValue);
-    if (Array.isArray(parsed)) {
-      return parsed as Project[];
-    }
-  } catch {
-    return seedProjects;
-  }
-
-  return seedProjects;
-}
-
-function openProjectsDb(): Promise<IDBDatabase> {
-  return new Promise((resolve, reject) => {
-    const request = window.indexedDB.open(PROJECTS_DB_NAME, 1);
-
-    request.onupgradeneeded = () => {
-      const database = request.result;
-      if (!database.objectStoreNames.contains(PROJECTS_STORE_NAME)) {
-        database.createObjectStore(PROJECTS_STORE_NAME, { keyPath: "id" });
-      }
-    };
-
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
-  });
-}
-
-async function readProjectsFromIndexedDb() {
-  if (!window.indexedDB) {
-    return null;
-  }
-
-  try {
-    const database = await openProjectsDb();
-    const projects = await new Promise<Project[] | null>((resolve, reject) => {
-      const transaction = database.transaction(PROJECTS_STORE_NAME, "readonly");
-      const store = transaction.objectStore(PROJECTS_STORE_NAME);
-      const request = store.get(PROJECTS_RECORD_ID);
-
-      request.onsuccess = () => {
-        const record = request.result as { id: string; projects: Project[] } | undefined;
-        resolve(Array.isArray(record?.projects) ? record.projects : null);
-      };
-      request.onerror = () => reject(request.error);
-    });
-    database.close();
-    return projects;
-  } catch {
-    return null;
-  }
-}
-
-async function writeProjectsToIndexedDb(projects: Project[]) {
-  if (!window.indexedDB) {
-    return;
-  }
-
-  try {
-    const database = await openProjectsDb();
-    await new Promise<void>((resolve, reject) => {
-      const transaction = database.transaction(PROJECTS_STORE_NAME, "readwrite");
-      const store = transaction.objectStore(PROJECTS_STORE_NAME);
-      store.put({ id: PROJECTS_RECORD_ID, projects });
-      transaction.oncomplete = () => resolve();
-      transaction.onerror = () => reject(transaction.error);
-    });
-    database.close();
-  } catch {
-    // Keep UI working even if indexedDB is unavailable.
-  }
-}
-
-function createProjectId() {
-  if ("randomUUID" in window.crypto) {
-    return window.crypto.randomUUID();
-  }
-
-  return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-}
-
 export function ProjectsProvider({ children }: { children: ReactNode }) {
-  const [projects, setProjects] = useState<Project[]>(() => readStoredProjects());
-  const [isStorageReady, setIsStorageReady] = useState(false);
+  const [projects, setProjects] = useState<Project[]>([]);
 
   useEffect(() => {
-    let mounted = true;
+    let isMounted = true;
 
-    const hydrateFromStorage = async () => {
-      const indexedDbProjects = await readProjectsFromIndexedDb();
-      if (mounted && indexedDbProjects?.length) {
-        setProjects(indexedDbProjects);
-      }
-      if (mounted) {
-        setIsStorageReady(true);
+    const loadProjects = async () => {
+      try {
+        const data = await fetchProjects();
+        if (isMounted) {
+          setProjects(data);
+        }
+      } catch {
+        if (isMounted) {
+          setProjects([]);
+        }
       }
     };
 
-    void hydrateFromStorage();
+    void loadProjects();
 
     return () => {
-      mounted = false;
+      isMounted = false;
     };
   }, []);
 
-  useEffect(() => {
-    if (!isStorageReady) {
-      return;
-    }
-
-    try {
-      window.localStorage.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(projects));
-    } catch {
-      // Large uploaded images can exceed localStorage quota on some devices.
-    }
-
-    void writeProjectsToIndexedDb(projects);
-  }, [projects, isStorageReady]);
-
-  const addProject = useCallback((project: ProjectDraft) => {
-    setProjects((currentProjects) => [...currentProjects, { id: createProjectId(), ...project }]);
+  const addProject = useCallback(async (project: ProjectDraft) => {
+    const created = await createProject(project as ProjectPayload);
+    setProjects((currentProjects) => [...currentProjects, created]);
   }, []);
 
-  const updateProject = useCallback((id: string, project: ProjectDraft) => {
+  const updateProject = useCallback(async (id: string, project: ProjectDraft) => {
+    const updated = await updateProjectById(id, project as ProjectPayload);
     setProjects((currentProjects) =>
-      currentProjects.map((currentProject) => (currentProject.id === id ? { ...currentProject, ...project } : currentProject))
+      currentProjects.map((currentProject) => (currentProject.id === id ? updated : currentProject))
     );
   }, []);
 
-  const deleteProject = useCallback((id: string) => {
+  const deleteProject = useCallback(async (id: string) => {
+    await deleteProjectById(id);
     setProjects((currentProjects) => currentProjects.filter((project) => project.id !== id));
   }, []);
 
