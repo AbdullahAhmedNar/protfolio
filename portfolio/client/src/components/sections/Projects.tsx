@@ -424,18 +424,20 @@ function ProjectCard({
                 <ExternalLink className="w-3 h-3" />
               </a>
             )}
-            <a
-              href={sourceUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`inline-flex items-center gap-1.5 text-xs font-medium transition-colors duration-200 ${
-                isDark ? "text-text-muted hover:text-mint" : "text-gray-500 hover:text-mint"
-              }`}
-              aria-label={`Source code of ${project.title}`}
-            >
-              <Github className="w-3.5 h-3.5" />
-              Source Code
-            </a>
+            {sourceUrl && (
+              <a
+                href={sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`inline-flex items-center gap-1.5 text-xs font-medium transition-colors duration-200 ${
+                  isDark ? "text-text-muted hover:text-mint" : "text-gray-500 hover:text-mint"
+                }`}
+                aria-label={`Source code of ${project.title}`}
+              >
+                <Github className="w-3.5 h-3.5" />
+                Source Code
+              </a>
+            )}
           </div>
 
           {isAdmin && (
