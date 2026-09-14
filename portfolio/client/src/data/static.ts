@@ -19,7 +19,7 @@ export const timelineData = [
     period: "2023 – Present (Expected Graduation: 2027)",
     title: "Starting My Computer Science Degree",
     description:
-      "In 2023, I began studying Computer Science at Misr Academy for Engineering and Technology. During this stage, I focused on building strong fundamentals and applying them through problem solving and continuous practice.",
+      "In 2023, I began studying Computer Science  During this stage, I focused on building strong fundamentals and applying them through problem solving and continuous practice.",
     highlights: [
       "Data Structures and Object-Oriented Programming",
       "C++ and algorithmic thinking",
