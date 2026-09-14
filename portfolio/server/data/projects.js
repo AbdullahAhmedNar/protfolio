@@ -121,7 +121,7 @@ export const projects = [
   },
   {
     id: "11",
-    title: "Abdullah Ahmed Nar Portfolio",
+    title: "Eng. Abdullah Ahmed Nar Platform",
     description:
       "A full-stack portfolio website built with React, Tailwind CSS, NestJS, and PostgreSQL.",
     techStack: ["React", "Tailwind CSS", "NestJS", "PostgreSQL"],
