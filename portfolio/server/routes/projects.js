@@ -17,7 +17,7 @@ function normalizeProjectPayload(payload = {}) {
   const liveUrlValue = payload.liveUrl == null ? "" : String(payload.liveUrl).trim();
   const liveUrl = liveUrlValue ? liveUrlValue : null;
 
-  if (!title || !description || !sourceUrl || !imageUrl || !category || techStack.length === 0) {
+  if (!title || !description || !imageUrl || !category || techStack.length === 0) {
     return null;
   }
 

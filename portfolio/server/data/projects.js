@@ -119,4 +119,16 @@ export const projects = [
     category: "Frontend",
     badge: "Real Project",
   },
+  {
+    id: "11",
+    title: "Abdullah Ahmed Nar Portfolio",
+    description:
+      "A full-stack portfolio website built with React, Tailwind CSS, NestJS, and PostgreSQL.",
+    techStack: ["React", "Tailwind CSS", "NestJS", "PostgreSQL"],
+    liveUrl: "https://engabdullahahmednar.com/",
+    sourceUrl: "",
+    imageUrl: "/image/pro10.png",
+    category: "Full Stack",
+    badge: "Live Project",
+  },
 ];

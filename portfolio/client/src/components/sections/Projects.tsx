@@ -481,8 +481,7 @@ export default function Projects() {
   const sectionRef = useRef<HTMLElement | null>(null);
 
   const projectsPerPage = 6;
-  const [latestProject, ...previousProjects] = projects;
-  const orderedProjects = latestProject ? [latestProject, ...previousProjects.reverse()] : [];
+  const orderedProjects = [...projects].reverse();
   const totalPages = Math.ceil(orderedProjects.length / projectsPerPage);
   const paginatedProjects = orderedProjects.slice(
     (currentPage - 1) * projectsPerPage,

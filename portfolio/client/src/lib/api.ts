@@ -57,7 +57,7 @@ function normalizeProject(raw: unknown): Project | null {
     ? candidate.techStack.map((tech) => String(tech).trim()).filter(Boolean)
     : [];
 
-  if (!id || !title || !description || !sourceUrl || !imageUrl || !category || techStack.length === 0) {
+  if (!id || !title || !description || !imageUrl || !category || techStack.length === 0) {
     return null;
   }
 
